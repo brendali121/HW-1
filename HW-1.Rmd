@@ -1,6 +1,6 @@
 ---
 title: "MATH 216 Homework 1"
-author: "WRITE YOUR NAME HERE"
+author: "Brenda Li"
 output:
   html_document:
     toc: true
@@ -9,7 +9,7 @@ output:
     smooth_scroll: false
 ---
 
-```{r, echo=FALSE, message=FALSE, cache=TRUE}
+```{r, echo=FALSE, message=FALSE}
 library(ggplot2)
 library(dplyr)
 # For read_csv() command, which is an improved version of base R's read.csv()
@@ -34,11 +34,11 @@ states <- read_csv("data/states.csv")
 
 Please indicate
 
-* Who you collaborated with:
-* Roughly how much time you spent on this HW so far:
-* The URL of the RPubs published URL [here](https://www.nhl.com/).
-* What gave you the most trouble:
-* Any comments you have:
+* Who you collaborated with: Shannia Fu
+* Roughly how much time you spent on this HW so far: 3 Hours
+* The URL of the RPubs published URL [here] (http://rpubs.com/brendali121/HW1).
+* What gave you the most trouble: Working with the function group_by(), because I felt like it never did what I wanted the function to do
+* Any comments you have: I never ended up using the weather data because I couldn't figure out an effective and useful way to interpret the data
 
 
 
@@ -57,9 +57,17 @@ minutes tend to occur.
 
 ```{r, echo=FALSE, message=FALSE, fig.width=12, fig.height=6}
 
+new_flights<-flights %>% 
+  mutate(delay_30=dep_delay>30) %>%  
+  filter(!is.na(dep_delay)) %>% 
+  group_by(date) %>% 
+  summarise(p=mean(delay_30)) %>% 
+  ggplot(aes(x=date,y=p))+labs(title = "Proportion of Flights Delayed More than 30 Minutes")+xlab("Date")+ylab("Proportion")+geom_point()
+new_flights
+
 ```
 
-
+Delays of 30 minutes or longer seem to occur in the summer months of June and July, as well as in the winter months of December and January. This trend could be explained by the fact that these months are the months with the greatest number of travelers, and a higher number of travelers correlates with a greater number of travel delays.    
 
 
 
@@ -69,11 +77,17 @@ Some people prefer flying on older planes.  Even though they aren't as nice,
 they tend to have more room.  Which airlines should these people favor?
 
 ```{r, echo=FALSE, fig.width=12, fig.height=6}
+q2<-inner_join(flights,planes,by="plane") %>% 
+  select(plane,year,carrier) %>%
+  filter(!is.na(year)) %>% 
+  mutate(old=year<2000)
 
+group_by(q2,carrier) %>% 
+  summarise(p=mean(old)) %>% 
+  arrange(desc(p))
+  
 ```
-
-
-
+The people who prefer flying on older planes should choose to fly on airlines such as MQ, AA, US, DL, UA and WN, which are the airlines where more than 50% of their planes were built before the year 2000.
 
 
 ## Question 3:
@@ -86,8 +100,27 @@ path, but since it flew 299 times in 2013, it would be counted as 299 flights.
 
 ```{r, echo=FALSE, message=FALSE, fig.width=12, fig.height=6}
 
-```
+q3<-inner_join(airports,flights,by=c("iata"="dest")) %>% 
+    filter(carrier=="WN") %>% 
+  select(state,flight) 
 
+#Flight Paths
+a<-q3 %>% 
+  group_by(flight,state) %>% 
+  tally() %>% 
+  group_by(state) %>% 
+  summarise(n=n()) %>% 
+  arrange(desc(n))
+head(a)
+
+#Flights
+b<-group_by(q3,state) %>% 
+  tally() %>%
+  arrange(desc(n))
+head(b)
+
+```
+Both Southwest flight paths and flights tended to fly into Texas, Florida, Lousiana, California, Oklahoma, and Illonois.
 
 
 
@@ -99,5 +132,26 @@ carrier flies to/from Houston in the month of July.  Consider the `month()`
 function from the `lubridate` package.
 
 ```{r, echo=FALSE, message=FALSE, fig.width=12, fig.height=6}
+library(lubridate)
+q3<-inner_join(airports,flights,by=c("iata"="dest"))
+july<-filter(q3,month(date)==7)
+
+q4<-inner_join(july,states,by="state") %>% 
+  select(flight,carrier,region)
+
+flights_per_region <- q4 %>%
+  group_by(carrier,region) %>%
+  tally() %>%
+  rename(num_in_region = n)
+
+flights_per_airline <- q4 %>% 
+  group_by(carrier) %>% 
+  tally() %>% 
+  rename(num_per_carrier=n)
+
+p<-left_join(flights_per_region,flights_per_airline,by="carrier") %>% 
+  mutate(prop=num_in_region/num_per_carrier) 
+p
+
 
 ```
