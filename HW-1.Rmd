@@ -38,8 +38,8 @@ Please indicate
 * Who you collaborated with: Shannia Fu
 * Roughly how much time you spent on this HW so far: 4 Hours
 * The URL of the RPubs published URL [here](http://rpubs.com/brendali121/HW1).
-* What gave you the most trouble: Working with the function group_by(), because I felt like it never did what I wanted the function to do
-* Any comments you have: I never ended up using the weather data because I couldn't figure out an effective and useful way to interpret the data.
+* What gave you the most trouble: Determining how to convey all the relevant information in a single plot/table.
+* Any comments you have: For question 2, I wasn't sure how to weight the proportion of older planes a carrier used against the number of older planes a carrier used so instead of outputting a single plot, I outputted multiple tables and plots to convey all the relevant information.
 
 
 
@@ -98,7 +98,7 @@ group_by(q2,year,carrier) %>%
   ggplot(aes(x=year,y=n))+geom_point()+facet_wrap(~carrier,ncol=5)+labs(title="Distribution of the Years Each Carrier's Planes Were Built",x="Year",y="Number of Planes")
 
 ```
-The people who prefer flying on older planes should choose to fly on WN since they use over 25000 planes that were built before the year 2000, which is more than 50% of their planes. You can also note this tendency in the plot of the distributions of the years each carrier's planes were built; you can see that the median of the distribution for WN planes is centered left of the year 2000 and the plot shows a much greater number of planes relative to than all the other airlines whose distributions are also be centered distinctly left of 2000.
+The people who prefer flying on older planes should choose to fly on WN since they use over 25000 planes that were built before the year 2000, which is also more than 50% of their planes. You can also note this tendency in the plot of the distributions of the years each carrier's planes were built; you can see that the median of the distribution for WN planes is centered left of the year 2000 and the plot shows a much greater number of planes relative to than all the other airlines whose distributions are also be centered distinctly left of 2000.
 
 
 ## Question 3:
@@ -166,6 +166,6 @@ flights_per_airline <- q4 %>%
 p<-left_join(flights_per_region,flights_per_airline,by="carrier") %>% 
   mutate(prop=num_in_region/num_per_carrier) 
 
-ggplot(data=p,aes(x=carrier,y=prop,fill=region))+geom_bar(stat="identity", position="fill")+scale_fill_brewer(palette = "YlGnBu")+labs(title="Proportion of Flights that Flies to Each Region",x="Carrier",y="Proportion")
+ggplot(data=p,aes(x=carrier,y=prop,fill=region))+geom_bar(stat="identity")+scale_fill_brewer(palette = "YlGnBu")+labs(title="Proportion of Flights that Flies to Each Region",x="Carrier",y="Proportion")
 
 ```
